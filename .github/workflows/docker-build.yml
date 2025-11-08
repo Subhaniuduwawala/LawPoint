@@ -1,0 +1,55 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            subhaniuduwawala/lawpoint-backend:latest
+            subhaniuduwawala/lawpoint-backend:${{ github.sha }}
+          cache-from: type=registry,ref=subhaniuduwawala/lawpoint-backend:latest
+          cache-to: type=inline
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            subhaniuduwawala/lawpoint-frontend:latest
+            subhaniuduwawala/lawpoint-frontend:${{ github.sha }}
+          cache-from: type=registry,ref=subhaniuduwawala/lawpoint-frontend:latest
+          cache-to: type=inline
+
+      - name: Image digest
+        run: |
+          echo "Backend: subhaniuduwawala/lawpoint-backend:latest"
+          echo "Frontend: subhaniuduwawala/lawpoint-frontend:latest"
+          echo "Images pushed successfully! 🎉"
