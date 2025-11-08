@@ -52,4 +52,4 @@ jobs:
         run: |
           echo "Backend: subhaniuduwawala/lawpoint-backend:latest"
           echo "Frontend: subhaniuduwawala/lawpoint-frontend:latest"
-          echo "Images pushed successfully! 🎉"
+          echo "Images pushed successfully! "
