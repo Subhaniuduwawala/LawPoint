@@ -1,0 +1,187 @@
+/* ====== GLOBAL ====== */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #eef3ff, #dfe9ff);
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+.app {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+/* ====== HEADER ====== */
+header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+header h1 {
+  color: #1e3a8a;
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.5px;
+}
+
+header p {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-info span {
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* ====== LOGOUT BUTTON ====== */
+.logout-btn {
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+}
+
+/* ====== FORM ====== */
+.form {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  background: #ffffffb0;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.form input {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.8rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.form input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  outline: none;
+}
+
+.form button {
+  padding: 0.8rem 1.6rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.form button:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+}
+
+/* ====== LAWYERS LIST ====== */
+.lawyers {
+  background: #ffffffb0;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.lawyers h2 {
+  color: #1e3a8a;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+/* ====== CARD DESIGN ====== */
+.card {
+  background: linear-gradient(145deg, #f9fafb, #ffffff);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.card h3 {
+  margin: 0 0 0.75rem 0;
+  color: #1e40af;
+  font-size: 1.1rem;
+}
+
+.card p {
+  margin: 0.3rem 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+.card strong {
+  color: #111827;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 600px) {
+  .form {
+    flex-direction: column;
+  }
+
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .logout-btn {
+    width: 100%;
+  }
+}
