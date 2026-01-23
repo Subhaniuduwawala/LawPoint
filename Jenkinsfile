@@ -45,7 +45,6 @@ pipeline {
                 dir('backend') {
                     sh """
                         docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
                             --tag ${BACKEND_IMAGE}:latest \
                             --tag ${BACKEND_IMAGE}:${GIT_COMMIT_SHORT} \
                             --cache-from type=registry,ref=${BACKEND_IMAGE}:latest \
@@ -63,7 +62,6 @@ pipeline {
                 dir('frontend') {
                     sh """
                         docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
                             --tag ${FRONTEND_IMAGE}:latest \
                             --tag ${FRONTEND_IMAGE}:${GIT_COMMIT_SHORT} \
                             --cache-from type=registry,ref=${FRONTEND_IMAGE}:latest \
