@@ -1,0 +1,109 @@
+---
+# Ansible playbook to configure and deploy LawPoint application
+
+- name: Deploy LawPoint Application
+  hosts: lawpoint_servers
+  become: yes
+  vars:
+    docker_compose_version: "2.24.0"
+    app_directory: "/opt/lawpoint"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-Linux-x86_64"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Create application directory
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Copy docker-compose.yml
+      copy:
+        src: ../docker-compose.yml
+        dest: "{{ app_directory }}/docker-compose.yml"
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+    - name: Pull Docker images
+      docker_image:
+        name: "{{ item }}"
+        source: pull
+      loop:
+        - subhaniuduwawala/lawpoint-backend:latest
+        - subhaniuduwawala/lawpoint-frontend:latest
+        - mongo:6.0
+
+    - name: Start Docker Compose services
+      docker_compose:
+        project_src: "{{ app_directory }}"
+        state: present
+        pull: yes
+
+    - name: Wait for backend to be ready
+      uri:
+        url: "http://localhost:4000/api/lawyers"
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 30
+      delay: 10
+
+    - name: Display application status
+      debug:
+        msg: 
+          - "LawPoint application deployed successfully!"
+          - "Frontend: http://{{ ansible_host }}:3000"
+          - "Backend: http://{{ ansible_host }}:4000"
