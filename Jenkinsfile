@@ -7,6 +7,11 @@ pipeline {
         BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/lawpoint-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/lawpoint-frontend"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+        SERVER_IP = '44.214.128.112'
+    }
+    
+    parameters {
+        booleanParam(name: 'DEPLOY_TO_AWS', defaultValue: false, description: 'Deploy to AWS EC2 after building?')
     }
     
     stages {
@@ -105,6 +110,41 @@ pipeline {
                 echo '========================================='
             }
         }
+        
+        stage('Deploy to AWS') {
+            when {
+                expression { params.DEPLOY_TO_AWS == true }
+            }
+            steps {
+                echo 'Deploying to AWS EC2...'
+                sshagent(credentials: ['lawpoint-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} '
+                            cd /home/ubuntu/lawpoint && \
+                            docker compose pull && \
+                            docker compose up -d && \
+                            docker system prune -f && \
+                            echo "Deployment completed!"
+                        '
+                    """
+                }
+            }
+        }
+        
+        stage('Health Check') {
+            when {
+                expression { params.DEPLOY_TO_AWS == true }
+            }
+            steps {
+                echo 'Running health checks...'
+                sh """
+                    sleep 15
+                    curl -f http://${SERVER_IP}:4000/api/lawyers || echo 'Backend check warning'
+                    curl -f http://${SERVER_IP}:3000 || echo 'Frontend check warning'
+                    echo 'Health checks completed!'
+                """
+            }
+        }
     }
     
     post {
@@ -117,6 +157,11 @@ pipeline {
         success {
             echo '✅ Pipeline completed successfully!'
             echo "Images pushed to Docker Hub: https://hub.docker.com/u/${DOCKERHUB_USERNAME}"
+            script {
+                if (params.DEPLOY_TO_AWS) {
+                    echo "🚀 Application deployed to: http://${SERVER_IP}:3000"
+                }
+            }
         }
         failure {
             echo '❌ Pipeline failed! Check the logs above.'
