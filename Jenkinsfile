@@ -7,6 +7,13 @@ pipeline {
         BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/lawpoint-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/lawpoint-frontend"
         GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+        SSH_CREDENTIALS = credentials('lawpoint-ssh-key')
+        SERVER_IP = credentials('lawpoint-server-ip')
+    }
+    
+    parameters {
+        booleanParam(name: 'DEPLOY_TO_AWS', defaultValue: false, description: 'Deploy to AWS after building?')
+        booleanParam(name: 'USE_ANSIBLE', defaultValue: false, description: 'Use Ansible for deployment?')
     }
     
     stages {
@@ -103,6 +110,60 @@ pipeline {
                 echo "Frontend: ${FRONTEND_IMAGE}:latest"
                 echo "Frontend: ${FRONTEND_IMAGE}:${GIT_COMMIT_SHORT}"
                 echo '========================================='
+            }
+        }
+        
+        stage('Deploy with SSH') {
+            when {
+                expression { params.DEPLOY_TO_AWS == true && params.USE_ANSIBLE == false }
+            }
+            steps {
+                echo 'Deploying to AWS EC2 via SSH...'
+                sshagent(credentials: ['lawpoint-ssh-key']) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@\${SERVER_IP} '
+                            cd /home/ubuntu/lawpoint && \
+                            docker-compose pull && \
+                            docker-compose up -d && \
+                            docker system prune -f
+                        '
+                    """
+                }
+            }
+        }
+        
+        stage('Deploy with Ansible') {
+            when {
+                expression { params.DEPLOY_TO_AWS == true && params.USE_ANSIBLE == true }
+            }
+            steps {
+                echo 'Deploying to AWS EC2 via Ansible...'
+                sh """
+                    cd ansible
+                    echo "[lawpoint_servers]" > inventory.ini
+                    echo "\${SERVER_IP} ansible_user=ubuntu ansible_ssh_private_key_file=\${SSH_CREDENTIALS}" >> inventory.ini
+                    echo "" >> inventory.ini
+                    echo "[lawpoint_servers:vars]" >> inventory.ini
+                    echo "ansible_python_interpreter=/usr/bin/python3" >> inventory.ini
+                    
+                    ansible-playbook -i inventory.ini deploy.yml
+                """
+            }
+        }
+        
+        stage('Health Check') {
+            when {
+                expression { params.DEPLOY_TO_AWS == true }
+            }
+            steps {
+                echo 'Running health checks...'
+                script {
+                    sleep(30)
+                    sh """
+                        curl -f http://\${SERVER_IP}:4000/api/lawyers || echo 'Backend health check failed'
+                        curl -f http://\${SERVER_IP}:3000 || echo 'Frontend health check failed'
+                    """
+                }
             }
         }
     }

@@ -1,5 +1,16 @@
 #!/bin/bash
-set -e
+set -ex
+
+# Log output to file for debugging
+exec > >(tee /var/log/user-data.log) 2>&1
+
+echo "Starting LawPoint deployment..."
+
+# Wait for apt to be available
+while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+    echo "Waiting for apt lock..."
+    sleep 5
+done
 
 # Update system
 sudo apt-get update -y
@@ -76,6 +87,12 @@ EOF
 sudo chown -R ubuntu:ubuntu /home/ubuntu/lawpoint
 
 # Start containers
-docker-compose up -d
+cd /home/ubuntu/lawpoint
+sudo -u ubuntu docker-compose pull
+sudo -u ubuntu docker-compose up -d
+
+echo "LawPoint deployment completed successfully!"
+echo "Frontend: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):3000"
+echo "Backend: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4):4000"
 
 echo "LawPoint deployment completed!"

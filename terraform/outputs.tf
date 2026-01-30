@@ -22,5 +22,5 @@ output "backend_url" {
 
 output "ssh_command" {
   description = "SSH command to connect to the instance"
-  value       = "ssh -i ${var.key_name}.pem ubuntu@${aws_eip.lawpoint_eip.public_ip}"
+  value       = "ssh -i ${var.key_name}.pem ec2-user@${aws_eip.lawpoint_eip.public_ip}"
 }

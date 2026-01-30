@@ -74,3 +74,15 @@ server-test.js
 *.pyc
 *.pyo
 __pycache__/
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/tfplan
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Temp files
+leep*
