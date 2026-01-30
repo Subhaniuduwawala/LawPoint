@@ -7,15 +7,15 @@ variable "aws_region" {
 }
 
 variable "ami_id" {
-  description = "AMI ID for EC2 instance (Ubuntu 22.04 LTS - Free Tier eligible)"
+  description = "AMI ID for EC2 instance (Ubuntu 22.04 LTS)"
   type        = string
-  default     = "ami-0030e4319cbf4dbf2" # Ubuntu 22.04 LTS in us-east-1 (latest)
+  default     = "ami-0c7217cdde317cfec" # Ubuntu 22.04 LTS in us-east-1
 }
 
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t3.micro" # Free tier eligible
+  default     = "t3.medium"
 }
 
 variable "key_name" {

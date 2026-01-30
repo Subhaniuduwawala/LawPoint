@@ -87,10 +87,10 @@
         - mongo:6.0
 
     - name: Start Docker Compose services
-      community.docker.docker_compose_v2:
+      docker_compose:
         project_src: "{{ app_directory }}"
         state: present
-        pull: always
+        pull: yes
 
     - name: Wait for backend to be ready
       uri:

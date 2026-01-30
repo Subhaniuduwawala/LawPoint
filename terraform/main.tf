@@ -117,15 +117,6 @@ resource "aws_security_group" "lawpoint_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Jenkins
-  ingress {
-    description = "Jenkins"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   # Outbound
   egress {
     from_port   = 0
@@ -149,7 +140,6 @@ resource "aws_instance" "lawpoint_server" {
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
     docker_compose_version = "2.24.0"
-    dockerhub_username     = "subhaniuduwawala"
   }))
 
   root_block_device {
@@ -166,8 +156,8 @@ resource "aws_instance" "lawpoint_server" {
 
 # Elastic IP
 resource "aws_eip" "lawpoint_eip" {
-  domain   = "vpc"
   instance = aws_instance.lawpoint_server.id
+  domain   = "vpc"
 
   tags = {
     Name = "lawpoint-eip"
