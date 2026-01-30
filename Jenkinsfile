@@ -10,10 +10,6 @@ pipeline {
         SERVER_IP = '44.214.128.112'
     }
     
-    parameters {
-        booleanParam(name: 'DEPLOY_TO_AWS', defaultValue: false, description: 'Deploy to AWS EC2 after building?')
-    }
-    
     stages {
         stage('Checkout') {
             steps {
@@ -113,13 +109,13 @@ pipeline {
         
         stage('Deploy to AWS') {
             when {
-                expression { params.DEPLOY_TO_AWS == true }
+                branch 'main'
             }
             steps {
                 echo 'Deploying to AWS EC2...'
-                sshagent(credentials: ['lawpoint-ssh-key']) {
+                withCredentials([file(credentialsId: 'lawpoint-ssh-key', variable: 'SSH_KEY_FILE')]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@${SERVER_IP} '
+                        ssh -o StrictHostKeyChecking=no -i \${SSH_KEY_FILE} ubuntu@${SERVER_IP} '
                             cd /home/ubuntu/lawpoint && \
                             docker compose pull && \
                             docker compose up -d && \
@@ -133,7 +129,7 @@ pipeline {
         
         stage('Health Check') {
             when {
-                expression { params.DEPLOY_TO_AWS == true }
+                branch 'main'
             }
             steps {
                 echo 'Running health checks...'
