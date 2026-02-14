@@ -1,16 +1,12 @@
 pipeline {
     agent any
     
-    triggers {
-        githubPush()
-    }
-    
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         DOCKERHUB_USERNAME = 'subhaniuduwawala'
         BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/lawpoint-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/lawpoint-frontend"
-        GIT_COMMIT_SHORT = "${BUILD_NUMBER}"
+        GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
         SERVER_IP = '44.214.128.112'
     }
     
@@ -113,43 +109,30 @@ pipeline {
         
         stage('Deploy to AWS') {
             steps {
-                script {
-                    try {
-                        echo 'Deploying to AWS EC2...'
-                        withCredentials([sshUserPrivateKey(credentialsId: 'lawpoint-ssh-key', keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
-                            sh """
-                                ssh -o StrictHostKeyChecking=no -i \${SSH_KEY_FILE} ${SSH_USER}@${SERVER_IP} '
-                                    cd /home/ubuntu/lawpoint && \
-                                    docker compose pull && \
-                                    docker compose up -d && \
-                                    docker system prune -f && \
-                                    echo "Deployment completed!"
-                                '
-                            """
-                        }
-                    } catch (Exception e) {
-                        echo "WARNING: Deployment skipped - SSH credentials not configured"
-                        echo "To enable deployment, add SSH key credential with ID 'lawpoint-ssh-key'"
-                    }
+                echo 'Deploying to AWS EC2...'
+                withCredentials([file(credentialsId: 'lawpoint-ssh-key', variable: 'SSH_KEY_FILE')]) {
+                    sh """
+                        ssh -o StrictHostKeyChecking=no -i \${SSH_KEY_FILE} ubuntu@${SERVER_IP} '
+                            cd /home/ubuntu/lawpoint && \
+                            docker compose pull && \
+                            docker compose up -d && \
+                            docker system prune -f && \
+                            echo "Deployment completed!"
+                        '
+                    """
                 }
             }
         }
         
         stage('Health Check') {
             steps {
-                script {
-                    try {
-                        echo 'Running health checks...'
-                        sh """
-                            sleep 15
-                            curl -f http://${SERVER_IP}:4000/api/health || echo 'Backend check warning'
-                            curl -f http://${SERVER_IP}:3000 || echo 'Frontend check warning'
-                            echo 'Health checks completed!'
-                        """
-                    } catch (Exception e) {
-                        echo "WARNING: Health check skipped - ${e.message}"
-                    }
-                }
+                echo 'Running health checks...'
+                sh """
+                    sleep 15
+                    curl -f http://${SERVER_IP}:4000/api/lawyers || echo 'Backend check warning'
+                    curl -f http://${SERVER_IP}:3000 || echo 'Frontend check warning'
+                    echo 'Health checks completed!'
+                """
             }
         }
     }
@@ -162,12 +145,12 @@ pipeline {
             '''
         }
         success {
-            echo '=== Pipeline completed successfully! ==='
+            echo '✅ Pipeline completed successfully!'
             echo "Images pushed to Docker Hub: https://hub.docker.com/u/${DOCKERHUB_USERNAME}"
-            echo "Application deployed to: http://${SERVER_IP}:3000"
+            echo "🚀 Application deployed to: http://${SERVER_IP}:3000"
         }
         failure {
-            echo '=== Pipeline failed! Check the logs above. ==='
+            echo ' Pipeline failed! Check the logs above.'
         }
     }
 }
