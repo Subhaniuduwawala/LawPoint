@@ -108,6 +108,9 @@ pipeline {
         }
         
         stage('Deploy to AWS') {
+            when {
+                branch 'main'
+            }
             steps {
                 echo 'Deploying to AWS EC2...'
                 withCredentials([file(credentialsId: 'lawpoint-ssh-key', variable: 'SSH_KEY_FILE')]) {
@@ -125,6 +128,9 @@ pipeline {
         }
         
         stage('Health Check') {
+            when {
+                branch 'main'
+            }
             steps {
                 echo 'Running health checks...'
                 sh """
@@ -147,10 +153,14 @@ pipeline {
         success {
             echo '✅ Pipeline completed successfully!'
             echo "Images pushed to Docker Hub: https://hub.docker.com/u/${DOCKERHUB_USERNAME}"
-            echo "🚀 Application deployed to: http://${SERVER_IP}:3000"
+            script {
+                if (params.DEPLOY_TO_AWS) {
+                    echo "🚀 Application deployed to: http://${SERVER_IP}:3000"
+                }
+            }
         }
         failure {
-            echo ' Pipeline failed! Check the logs above.'
+            echo '❌ Pipeline failed! Check the logs above.'
         }
     }
 }
