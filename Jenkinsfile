@@ -1,15 +1,5 @@
 pipeline {
     agent any
-
-    // No automatic triggers - manual builds only
-    triggers {
-        // Empty - no SCM polling, no webhooks
-    }
-
-    options {
-        skipDefaultCheckout(false)
-        buildDiscarder(logRotator(numToKeepStr: '5'))
-    }
     
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
@@ -125,12 +115,30 @@ pipeline {
                 echo 'Deploying to AWS EC2...'
                 withCredentials([file(credentialsId: 'lawpoint-ssh-key', variable: 'SSH_KEY_FILE')]) {
                     sh """
+                        echo 'Connecting to AWS EC2 instance...'
                         ssh -o StrictHostKeyChecking=no -i \${SSH_KEY_FILE} ubuntu@${SERVER_IP} '
-                            cd /home/ubuntu/lawpoint && \
-                            docker compose pull && \
-                            docker compose up -d && \
-                            docker system prune -f && \
-                            echo "Deployment completed!"
+                            echo "Connected to \$(hostname)"
+                            echo "Current user: \$(whoami)"
+                            
+                            if [ ! -d "/home/ubuntu/lawpoint" ]; then
+                                echo "Creating lawpoint directory..."
+                                mkdir -p /home/ubuntu/lawpoint
+                            fi
+                            
+                            cd /home/ubuntu/lawpoint || exit 1
+                            echo "Working directory: \$(pwd)"
+                            
+                            echo "Pulling latest Docker images..."
+                            docker compose pull || exit 1
+                            
+                            echo "Starting services..."
+                            docker compose up -d || exit 1
+                            
+                            echo "Cleaning up unused Docker resources..."
+                            docker system prune -f
+                            
+                            echo "✅ Deployment completed successfully!"
+                            docker compose ps
                         '
                     """
                 }
@@ -145,9 +153,15 @@ pipeline {
                 echo 'Running health checks...'
                 sh """
                     sleep 15
-                    curl -f http://${SERVER_IP}:4000/api/lawyers || echo 'Backend check warning'
-                    curl -f http://${SERVER_IP}:3000 || echo 'Frontend check warning'
-                    echo 'Health checks completed!'
+                    echo 'Testing backend health endpoint...'
+                    curl -f http://${SERVER_IP}:4000/api/health || { echo 'Backend health check FAILED'; exit 1; }
+                    echo 'Backend is healthy!'
+                    
+                    echo 'Testing frontend...'
+                    curl -f http://${SERVER_IP}:3000 || { echo 'Frontend check FAILED'; exit 1; }
+                    echo 'Frontend is accessible!'
+                    
+                    echo 'All health checks passed!'
                 """
             }
         }
@@ -163,11 +177,8 @@ pipeline {
         success {
             echo ' Pipeline completed successfully!'
             echo "Images pushed to Docker Hub: https://hub.docker.com/u/${DOCKERHUB_USERNAME}"
-            script {
-                if (params.DEPLOY_TO_AWS) {
-                    echo " Application deployed to: http://${SERVER_IP}:3000"
-                }
-            }
+            echo "🚀 Application deployed to: http://${SERVER_IP}:3000"
+            echo "📊 Backend API: http://${SERVER_IP}:4000"
         }
         failure {
             echo ' Pipeline failed! Check the logs above.'
