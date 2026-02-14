@@ -1,5 +1,15 @@
 pipeline {
     agent any
+
+    // No automatic triggers - manual builds only
+    triggers {
+        // Empty - no SCM polling, no webhooks
+    }
+
+    options {
+        skipDefaultCheckout(false)
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
     
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
