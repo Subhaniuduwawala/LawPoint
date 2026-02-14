@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    // Manual switch to run Deploy + Health Check even when NOT on main
-    parameters {
-        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Deploy to AWS EC2 (runs on main automatically, or when DEPLOY=true)')
-    }
-
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         DOCKERHUB_USERNAME = 'subhaniuduwawala'
@@ -116,12 +111,6 @@ pipeline {
         }
 
         stage('Deploy to AWS') {
-            when {
-                anyOf {
-                    branch 'main'
-                    expression { return params.DEPLOY }
-                }
-            }
             steps {
                 echo 'Deploying to AWS EC2...'
                 withCredentials([file(credentialsId: 'lawpoint-ssh-key', variable: 'SSH_KEY_FILE')]) {
@@ -158,12 +147,6 @@ pipeline {
         }
 
         stage('Health Check') {
-            when {
-                anyOf {
-                    branch 'main'
-                    expression { return params.DEPLOY }
-                }
-            }
             steps {
                 echo 'Running health checks...'
                 sh """
