@@ -82,7 +82,7 @@ function Lawyers() {
       <div className="stats-bar">
         <div>
           <h3>{lawyers.length}</h3>
-          <p>Registered Lawyers</p>
+          <p>Our Registered Lawyers</p>
         </div>
         <div>
           <h3>Criminal, Civil, Corporate</h3>

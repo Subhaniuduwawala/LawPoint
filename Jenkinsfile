@@ -151,7 +151,7 @@ pipeline {
         success {
             echo '✅ Pipeline completed successfully!'
             echo "Images pushed to Docker Hub: https://hub.docker.com/u/${DOCKERHUB_USERNAME}"
-            echo "🚀 Application deployed to: http://${SERVER_IP}:3000"
+            echo " Application deployed to: http://${SERVER_IP}:3000"
         }
         failure {
             echo ' Pipeline failed! Check the logs above.'
