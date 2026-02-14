@@ -57,36 +57,71 @@ function Lawyers() {
 
   return (
     <div className="app-container">
-      {/* Header */}
-      <header className="header">
-        <div className="header-left">
-          <h1>LawPoint</h1>
-          <p>Your gateway to trusted legal professionals</p>
+      {/* Modern Navigation Bar */}
+      <nav className="navbar">
+        <div className="nav-content">
+          <div className="nav-logo">
+            <span className="logo-icon">⚖️</span>
+            <span className="logo-text">LawPoint</span>
+          </div>
+          <ul className="nav-menu">
+            <li className="nav-item active"><a href="#home">Home</a></li>
+            <li className="nav-item"><a href="#lawyers">Find Lawyers</a></li>
+            <li className="nav-item"><a href="#services">Services</a></li>
+            <li className="nav-item"><a href="#about">About</a></li>
+            <li className="nav-item"><a href="#contact">Contact</a></li>
+          </ul>
+          <div className="nav-user">
+            <div className="user-info">
+              <span className="user-avatar">{user?.name?.charAt(0).toUpperCase()}</span>
+              <span className="user-name">{user?.name}</span>
+            </div>
+            <button onClick={logout} className="logout-btn">
+              <span>Logout</span>
+              <span className="logout-icon">→</span>
+            </button>
+          </div>
         </div>
-        <div className="header-right">
-          <span>Welcome, {user?.name}!</span>
-          <button onClick={logout} className="logout-btn">Logout</button>
-        </div>
-      </header>
+      </nav>
 
       {/* Hero Section */}
-      <div
-        className="hero-banner"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      >
-        <h2>Connecting You with Legal Experts Across the Nation</h2>
-        <p>Search, connect, and consult the right lawyer for your needs.</p>
+      <div className="hero-section" id="home">
+        <div
+          className="hero-banner"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        >
+          <div className="hero-content">
+            <h1 className="hero-title">Find Your Trusted Legal Expert</h1>
+            <p className="hero-subtitle">Connect with experienced lawyers across the nation for all your legal needs</p>
+            <div className="hero-buttons">
+              <button className="hero-btn primary">Find a Lawyer</button>
+              <button className="hero-btn secondary">Learn More</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="stats-bar">
-        <div>
-          <h3>{lawyers.length}</h3>
-          <p>Our Registered Lawyers</p>
+        <div className="stat-item">
+          <div className="stat-icon">👨‍⚖️</div>
+          <h3 className="stat-number">{lawyers.length}+</h3>
+          <p className="stat-label">Expert Lawyers</p>
         </div>
-        <div>
-          <h3>Criminal, Civil, Corporate</h3>
-          <p>Top Specialties</p>
+        <div className="stat-item">
+          <div className="stat-icon">🏆</div>
+          <h3 className="stat-number">95%</h3>
+          <p className="stat-label">Success Rate</p>
+        </div>
+        <div className="stat-item">
+          <div className="stat-icon">⚖️</div>
+          <h3 className="stat-number">15+</h3>
+          <p className="stat-label">Practice Areas</p>
+        </div>
+        <div className="stat-item">
+          <div className="stat-icon">🌟</div>
+          <h3 className="stat-number">1000+</h3>
+          <p className="stat-label">Happy Clients</p>
         </div>
       </div>
 
@@ -134,8 +169,11 @@ function Lawyers() {
       </div>
 
       {/* Lawyers List */}
-      <div className="lawyer-list">
-        <h2>Our Lawyers ({filteredLawyers.length})</h2>
+      <div className="lawyer-list" id="lawyers">
+        <div className="section-header">
+          <h2 className="section-title">Our Expert Lawyers</h2>
+          <p className="section-subtitle">Connect with {filteredLawyers.length} qualified legal professionals</p>
+        </div>
         {loading && <p className="info-text">Loading...</p>}
         {!loading && filteredLawyers.length === 0 && (
           <p className="info-text">No lawyers found. Try adding one!</p>
@@ -161,8 +199,11 @@ function Lawyers() {
       </div>
 
       {/* Law Types Section */}
-      <section className="law-types">
-        <h2>Types of Law We Cover</h2>
+      <section className="law-types" id="services">
+        <div className="section-header">
+          <h2 className="section-title">Practice Areas</h2>
+          <p className="section-subtitle">Comprehensive legal services across multiple specializations</p>
+        </div>
         <div className="law-type-grid">
           <div className="law-type-card">
             <h3>⚖️ Criminal Law</h3>
@@ -218,9 +259,11 @@ function Lawyers() {
 
       {/* Call to Action */}
       <section className="cta-section">
-        <h2>Need Legal Assistance?</h2>
-        <p>Find your ideal lawyer today or register as a professional with LawPoint.</p>
-        <button className="cta-btn">Get Started</button>
+        <div>
+          <h2>Need Legal Assistance?</h2>
+          <p>Find your ideal lawyer today or register as a professional with LawPoint.</p>
+          <button className="cta-btn">Get Started</button>
+        </div>
       </section>
 
       <footer className="footer">
