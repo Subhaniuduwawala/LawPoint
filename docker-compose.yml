@@ -8,7 +8,7 @@ services:
       - "27017:27017"
 
   backend:
-    build: ./backend
+    image: subhaniuduwawala/lawpoint-backend:latest
     restart: unless-stopped
     ports:
       - "4000:4000"
@@ -21,7 +21,7 @@ services:
       - mongo
 
   frontend:
-    build: ./frontend
+    image: subhaniuduwawala/lawpoint-frontend:latest
     restart: unless-stopped
     ports:
       - "3000:80"
