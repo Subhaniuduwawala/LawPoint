@@ -91,7 +91,7 @@ function Lawyers() {
           style={{ backgroundImage: `url(${heroImage})` }}
         >
           <div className="hero-content">
-            <h1 className="hero-title">Find Your Trusted Legal Expert</h1>
+            <h1 className="hero-title">subhani harshani uduwawala</h1>
             <p className="hero-subtitle">Connect with experienced lawyers across the nation for all your legal needs</p>
             <div className="hero-buttons">
               <button className="hero-btn primary">Find a Lawyer</button>
