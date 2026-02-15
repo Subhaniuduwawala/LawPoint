@@ -138,7 +138,7 @@ pipeline {
                             echo "Cleaning up unused Docker resources..."
                             docker system prune -f
 
-                            echo "✅ Deployment completed successfully!"
+                            echo " Deployment completed successfully!"
                             docker compose ps
                         '
                     """
@@ -159,7 +159,7 @@ pipeline {
                     curl -f http://${SERVER_IP}:3000 || { echo 'Frontend check FAILED'; exit 1; }
                     echo 'Frontend is accessible!'
 
-                    echo '✅ All health checks passed!'
+                    echo ' All health checks passed!'
                 """
             }
         }
@@ -171,13 +171,13 @@ pipeline {
             sh 'docker logout || true'
         }
         success {
-            echo '✅ Pipeline completed successfully!'
-            echo "Images pushed to Docker Hub: https://hub.docker.com/u/${DOCKERHUB_USERNAME}"
-            echo "🚀 Application deployed to: http://${SERVER_IP}:3000"
-            echo "📊 Backend API: http://${SERVER_IP}:4000"
+            echo ' Pipeline completed successfully!'
+            echo " Images pushed to Docker Hub: https://hub.docker.com/u/${DOCKERHUB_USERNAME}"
+            echo " Application deployed to: http://${SERVER_IP}:3000"
+            echo " Backend API: http://${SERVER_IP}:4000"
         }
         failure {
-            echo '❌ Pipeline failed! Check the logs above.'
+            echo ' Pipeline failed! Check the logs above.'
         }
     }
 }
