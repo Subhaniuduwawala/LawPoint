@@ -94,7 +94,7 @@ function Lawyers() {
             <h1 className="hero-title">Find Your Trusted Legal Expert</h1>
             <p className="hero-subtitle">Connect with experienced lawyers across the nation for all your legal needs</p>
             <div className="hero-buttons">
-              <button className="hero-btn primary">Find a Lawyer</button>
+              <button className="hero-btn primary">Find Lawyers</button>
               <button className="hero-btn secondary">Learn More</button>
             </div>
           </div>
